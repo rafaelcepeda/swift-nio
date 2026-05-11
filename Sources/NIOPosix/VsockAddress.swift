@@ -14,7 +14,6 @@
 
 #if !os(WASI)
 
-// Test: verify FreeBSD VM build flow
 import NIOCore
 
 #if canImport(Darwin)
