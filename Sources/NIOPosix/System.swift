@@ -23,7 +23,7 @@ import NIOCore
 @_exported import Darwin.C
 import CNIODarwin
 internal typealias MMsgHdr = CNIODarwin_mmsghdr
-#elseif os(Linux) || os(FreeBSD) || os(Android)
+#elseif os(Linux) || os(Android)
 #if canImport(Glibc)
 @_exported @preconcurrency import Glibc
 #elseif canImport(Musl)
@@ -34,6 +34,11 @@ internal typealias MMsgHdr = CNIODarwin_mmsghdr
 import CNIOLinux
 internal typealias MMsgHdr = CNIOLinux_mmsghdr
 internal typealias in6_pktinfo = CNIOLinux_in6_pktinfo
+#elseif os(FreeBSD)
+@_exported @preconcurrency import Glibc
+import CNIOFreeBSD
+internal typealias MMsgHdr = CNIOFreeBSD_mmsghdr
+internal typealias in6_pktinfo = CNIOFreeBSD_in6_pktinfo
 #elseif os(OpenBSD)
 @_exported @preconcurrency import Glibc
 import CNIOOpenBSD
@@ -177,6 +182,8 @@ private let sysSendMmsg = CNIOLinux_sendmmsg
 private let sysRecvMmsg = CNIOLinux_recvmmsg
 #elseif os(FreeBSD)
 private let sysKevent = kevent
+private let sysSendMmsg = CNIOFreeBSD_sendmmsg
+private let sysRecvMmsg = CNIOFreeBSD_recvmmsg
 #elseif os(OpenBSD)
 private let sysKevent = kevent
 private let sysSendMmsg = CNIOOpenBSD_sendmmsg
@@ -360,7 +367,7 @@ internal func syscall<T>(
         }
     }
 }
-#elseif os(Linux) || os(Android) || os(OpenBSD)
+#elseif os(Linux) || os(Android) || os(OpenBSD) || os(FreeBSD)
 @inline(__always)
 @inlinable
 @discardableResult
@@ -463,7 +470,7 @@ internal enum Posix: Sendable {
     static let SHUT_WR: CInt = CInt(Darwin.SHUT_WR)
     @usableFromInline
     static let SHUT_RDWR: CInt = CInt(Darwin.SHUT_RDWR)
-    #elseif os(Linux) || os(FreeBSD) || os(Android) || os(OpenBSD)
+    #elseif os(Linux) || os(Android) || os(OpenBSD)
     #if canImport(Glibc)
     @usableFromInline
     static let UIO_MAXIOV: Int = Int(Glibc.UIO_MAXIOV)
@@ -492,23 +499,15 @@ internal enum Posix: Sendable {
     @usableFromInline
     static let SHUT_RDWR: CInt = CInt(Android.SHUT_RDWR)
     #endif
-    #else
+    #elseif os(FreeBSD)
     @usableFromInline
-    static var UIO_MAXIOV: Int {
-        fatalError("unsupported OS")
-    }
+    static let UIO_MAXIOV: Int = 1024
     @usableFromInline
-    static var SHUT_RD: Int {
-        fatalError("unsupported OS")
-    }
+    static let SHUT_RD: CInt = CInt(Glibc.SHUT_RD.rawValue)
     @usableFromInline
-    static var SHUT_WR: Int {
-        fatalError("unsupported OS")
-    }
+    static let SHUT_WR: CInt = CInt(Glibc.SHUT_WR.rawValue)
     @usableFromInline
-    static var SHUT_RDWR: Int {
-        fatalError("unsupported OS")
-    }
+    static let SHUT_RDWR: CInt = CInt(Glibc.SHUT_RDWR.rawValue)
     #endif
 
     #if canImport(Darwin)
@@ -517,7 +516,7 @@ internal enum Posix: Sendable {
     static let IPTOS_ECN_ECT0: CInt = CNIODarwin_IPTOS_ECN_ECT0
     static let IPTOS_ECN_ECT1: CInt = CNIODarwin_IPTOS_ECN_ECT1
     static let IPTOS_ECN_CE: CInt = CNIODarwin_IPTOS_ECN_CE
-    #elseif os(Linux) || os(FreeBSD) || os(Android)
+    #elseif os(Linux) || os(Android)
     #if os(Android)
     static let IPTOS_ECN_NOTECT: CInt = CInt(CNIOLinux.IPTOS_ECN_NOTECT)
     #else
@@ -527,6 +526,12 @@ internal enum Posix: Sendable {
     static let IPTOS_ECN_ECT0: CInt = CInt(CNIOLinux.IPTOS_ECN_ECT0)
     static let IPTOS_ECN_ECT1: CInt = CInt(CNIOLinux.IPTOS_ECN_ECT1)
     static let IPTOS_ECN_CE: CInt = CInt(CNIOLinux.IPTOS_ECN_CE)
+    #elseif os(FreeBSD)
+    static let IPTOS_ECN_NOTECT: CInt = CInt(CNIOFreeBSD.IPTOS_ECN_NOTECT)
+    static let IPTOS_ECN_MASK: CInt = CInt(CNIOFreeBSD.IPTOS_ECN_MASK)
+    static let IPTOS_ECN_ECT0: CInt = CInt(CNIOFreeBSD.IPTOS_ECN_ECT0)
+    static let IPTOS_ECN_ECT1: CInt = CInt(CNIOFreeBSD.IPTOS_ECN_ECT1)
+    static let IPTOS_ECN_CE: CInt = CInt(CNIOFreeBSD.IPTOS_ECN_CE)
     #elseif os(OpenBSD)
     static let IPTOS_ECN_NOTECT: CInt = CInt(CNIOOpenBSD.IPTOS_ECN_NOTECT)
     static let IPTOS_ECN_MASK: CInt = CInt(CNIOOpenBSD.IPTOS_ECN_MASK)
@@ -547,12 +552,18 @@ internal enum Posix: Sendable {
 
     static let IPV6_RECVPKTINFO: CInt = CNIODarwin_IPV6_RECVPKTINFO
     static let IPV6_PKTINFO: CInt = CNIODarwin_IPV6_PKTINFO
-    #elseif os(Linux) || os(FreeBSD) || os(Android)
+    #elseif os(Linux) || os(Android)
     static let IP_RECVPKTINFO: CInt = CInt(CNIOLinux.IP_PKTINFO)
     static let IP_PKTINFO: CInt = CInt(CNIOLinux.IP_PKTINFO)
 
     static let IPV6_RECVPKTINFO: CInt = CInt(CNIOLinux.IPV6_RECVPKTINFO)
     static let IPV6_PKTINFO: CInt = CInt(CNIOLinux.IPV6_PKTINFO)
+    #elseif os(FreeBSD)
+    static let IP_RECVPKTINFO: CInt = CInt(CNIOFreeBSD_IP_PKTINFO)
+    static let IP_PKTINFO: CInt = CInt(CNIOFreeBSD_IP_PKTINFO)
+
+    static let IPV6_RECVPKTINFO: CInt = CInt(CNIOFreeBSD_IPV6_RECVPKTINFO)
+    static let IPV6_PKTINFO: CInt = CInt(CNIOFreeBSD_IPV6_PKTINFO)
     #elseif os(OpenBSD)
     static let IP_PKTINFO: CInt = CInt(-1)  // Not actually present.
 
@@ -830,7 +841,12 @@ internal enum Posix: Sendable {
                 let result: CInt = Darwin.sendfile(fd, descriptor, offset, &w, nil, 0)
                 written = w
                 return ssize_t(result)
-                #elseif os(Linux) || os(FreeBSD) || os(Android)
+                #elseif os(FreeBSD)
+                var w: off_t = 0
+                let result: CInt = Glibc.sendfile(fd, descriptor, offset, count, nil, &w, 0)
+                written = w
+                return ssize_t(result)
+                #elseif os(Linux) || os(Android)
                 var off: off_t = offset
                 #if canImport(Glibc)
                 let result: ssize_t = Glibc.sendfile(descriptor, fd, &off, count)

@@ -66,6 +66,22 @@ size_t CNIOFreeBSD_CMSG_SPACE(size_t payloadSizeBytes) {
     return CMSG_SPACE(payloadSizeBytes);
 }
 
+#ifdef IP_PKTINFO
+const int CNIOFreeBSD_IP_PKTINFO = IP_PKTINFO;
+#else
+const int CNIOFreeBSD_IP_PKTINFO = -1;
+#endif
+#ifdef IPV6_RECVPKTINFO
+const int CNIOFreeBSD_IPV6_RECVPKTINFO = IPV6_RECVPKTINFO;
+#else
+const int CNIOFreeBSD_IPV6_RECVPKTINFO = -1;
+#endif
+#ifdef IPV6_PKTINFO
+const int CNIOFreeBSD_IPV6_PKTINFO = IPV6_PKTINFO;
+#else
+const int CNIOFreeBSD_IPV6_PKTINFO = -1;
+#endif
+
 const char *CNIOFreeBSD_inet_ntop(int af, const void *src, char *dst, socklen_t size) {
     return inet_ntop(af, src, dst, size);
 }

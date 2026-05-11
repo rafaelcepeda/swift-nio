@@ -46,6 +46,10 @@ void *CNIOFreeBSD_CMSG_DATA_MUTABLE(struct cmsghdr *);
 size_t CNIOFreeBSD_CMSG_LEN(size_t);
 size_t CNIOFreeBSD_CMSG_SPACE(size_t);
 
+extern const int CNIOFreeBSD_IP_PKTINFO;
+extern const int CNIOFreeBSD_IPV6_RECVPKTINFO;
+extern const int CNIOFreeBSD_IPV6_PKTINFO;
+
 const char *CNIOFreeBSD_inet_ntop(int af, const void *src, char *dst, socklen_t size);
 int CNIOFreeBSD_inet_pton(int af, const char *src, void *dst);
 
