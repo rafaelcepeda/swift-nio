@@ -168,10 +168,10 @@ let package = Package(
             name: "CNIOOpenBSD",
             dependencies: []
         ),
-	.target(
-	    name: "CNIOFreeBSD",
-	    dependencies: []
-	),
+        .target(
+            name: "CNIOFreeBSD",
+            dependencies: []
+        ),
         .target(
             name: "CNIOFreeBSD",
             dependencies: []
