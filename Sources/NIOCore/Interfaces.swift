@@ -20,8 +20,8 @@
 @preconcurrency import Bionic
 #endif
 import CNIOLinux
-#elseif os(FreeBSD)                                                                                                                                                                                                
-@preconcurrency import Glibc                                                                                                                                                                                       
+#elseif os(FreeBSD)
+@preconcurrency import Glibc
 import CNIOFreeBSD
 #elseif os(OpenBSD)
 import CNIOOpenBSD
