@@ -173,10 +173,6 @@ let package = Package(
             dependencies: []
         ),
         .target(
-            name: "CNIOFreeBSD",
-            dependencies: []
-        ),
-        .target(
             name: "CNIOLinux",
             dependencies: [],
             cSettings: [
