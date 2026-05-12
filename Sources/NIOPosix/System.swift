@@ -503,11 +503,11 @@ internal enum Posix: Sendable {
     @usableFromInline
     static let UIO_MAXIOV: Int = 1024
     @usableFromInline
-    static let SHUT_RD: CInt = CInt(Glibc.SHUT_RD.rawValue)
+    static let SHUT_RD: CInt = CInt(CNIOFreeBSD.SHUT_RD.rawValue)
     @usableFromInline
-    static let SHUT_WR: CInt = CInt(Glibc.SHUT_WR.rawValue)
+    static let SHUT_WR: CInt = CInt(CNIOFreeBSD.SHUT_WR.rawValue)
     @usableFromInline
-    static let SHUT_RDWR: CInt = CInt(Glibc.SHUT_RDWR.rawValue)
+    static let SHUT_RDWR: CInt = CInt(CNIOFreeBSD.SHUT_RDWR.rawValue)
     #endif
 
     #if canImport(Darwin)
