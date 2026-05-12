@@ -16,6 +16,7 @@
 
 import Atomics
 import CNIODarwin
+import CNIOFreeBSD
 import CNIOLinux
 import CNIOOpenBSD
 import CNIOWindows

@@ -105,6 +105,15 @@ extension BaseSocketProtocol {
         guard haveWeIgnoredSIGPIEThisIsHereToTriggerIgnoringIt else {
             fatalError("BUG in NIO. We did not ignore SIGPIPE, this code path should definitely not be reachable.")
         }
+        #elseif os(FreeBSD)
+        assert(fd >= 0, "illegal file descriptor \(fd)")
+        var value: CInt = 1
+        let rc = setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &value, socklen_t(MemoryLayout<CInt>.size))
+        if rc != 0 {
+            let err = errno
+            try? Posix.close(descriptor: fd)
+            throw IOError(errnoCode: err, reason: "setsockopt(SO_NOSIGPIPE)")
+        }
         #elseif os(Windows)
         // Deliberately empty: SIGPIPE just ain't a thing on Windows
         #else

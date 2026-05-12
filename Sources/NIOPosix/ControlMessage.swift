@@ -18,7 +18,9 @@ import NIOCore
 
 #if canImport(Darwin)
 import CNIODarwin
-#elseif os(Linux) || os(FreeBSD) || os(Android)
+#elseif os(FreeBSD)
+import CNIOFreeBSD
+#elseif os(Linux) || os(Android)
 import CNIOLinux
 #elseif os(OpenBSD)
 import CNIOOpenBSD
